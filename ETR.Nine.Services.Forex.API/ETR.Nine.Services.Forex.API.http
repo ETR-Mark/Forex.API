@@ -1,0 +1,6 @@
+@ETR.Nine.Services.Forex.API_HostAddress = http://localhost:5185
+
+GET {{ETR.Nine.Services.Forex.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

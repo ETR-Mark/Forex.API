@@ -1,0 +1,32 @@
+using System;
+using ETR.Nine.Services.Forex.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+app.MapGet("/", () =>
+{
+    return "Hello World!";
+});
+
+var forexGroup = app.MapGroup("internal/forex");
+
+forexGroup.MapGet("/{Date}", (string Date) =>
+{
+    return $"Forex date output {Date}";
+});
+
+app.Run();

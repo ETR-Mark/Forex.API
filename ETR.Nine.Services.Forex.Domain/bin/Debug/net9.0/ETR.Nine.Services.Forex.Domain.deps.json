@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "ETR.Nine.Services.Forex.Domain/1.0.0": {
+        "runtime": {
+          "ETR.Nine.Services.Forex.Domain.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "ETR.Nine.Services.Forex.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

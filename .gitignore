@@ -1,0 +1,8 @@
+*.db
+.vscode/settings.json
+
+*obj
+*.obj
+*.iobj
+*obj/Debug/*
+*obj/Release/*
