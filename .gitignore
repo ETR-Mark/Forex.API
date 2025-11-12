@@ -1,6 +1,7 @@
 *.db
 .vscode/settings.json
 
+*bin
 *obj
 *.obj
 *.iobj
