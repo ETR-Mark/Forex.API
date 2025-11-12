@@ -1,5 +1,6 @@
 using System;
 using ETR.Nine.Services.Forex.Infrastructure;
+using ETR.Nine.Services.Forex.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -27,9 +28,31 @@ app.MapGet("/", () =>
 
 var forexGroup = app.MapGroup("internal/forex");
 
-forexGroup.MapGet("/{Date}", (string Date) =>
+forexGroup.MapGet("/", async (IForexService forexService) =>
 {
-    return $"Forex date output {Date}";
+    var forexRates = await forexService.GetAllForex();
+    return forexRates;
 });
+
+forexGroup.MapGet("/{date}", (string date) =>
+{
+    if (DateTime.TryParseExact(date, "MMddyyyy", null, System.Globalization.DateTimeStyles.None, out var parsedDate))
+    {
+        string dateToday = DateTime.UtcNow.ToString("MM-dd-yyyy");
+        if (parsedDate.Date == DateTime.UtcNow.Date)
+        {
+            return Results.Ok($"Forex date output: {parsedDate:MM-dd-yyyy} (Today) ||| Today is {dateToday}");
+        }
+        else
+        {
+            return Results.Ok($"Forex date output: {parsedDate:MM-dd-yyyy} (Other date) ||| Today is {dateToday}");
+        }
+    }
+    else
+    {
+        return Results.BadRequest("Invalid date format. Use DDMMYYYY.");
+    }
+});
+
 
 app.Run();

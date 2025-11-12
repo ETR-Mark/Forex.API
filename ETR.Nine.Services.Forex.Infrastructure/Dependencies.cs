@@ -1,6 +1,6 @@
-using ETR.Nine.Services.Forex.Application.Interfaces.Repositories;
 using ETR.Nine.Services.Forex.Infrastructure.Persistence;
 using ETR.Nine.Services.Forex.Infrastructure.Repositories;
+using ETR.Nine.Services.Forex.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +17,7 @@ namespace ETR.Nine.Services.Forex.Infrastructure
                 options.UseSqlite(connectionString));
             services.AddScoped<IAppDbContext, ForexDbContext>();
             services.AddScoped<IForexRepository, ForexRepository>();
+            services.AddScoped<IForexService, ForexService>();
 
             return services;
         }

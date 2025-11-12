@@ -1,9 +1,10 @@
-using ETR.Nine.Services.Forex.Domain.Entity;
+using ETR.Nine.Services.Forex.Infrastructure.Persistence.Database;
 
-namespace ETR.Nine.Services.Forex.Application.Interfaces.IServices
+namespace ETR.Nine.Services.Forex.Infrastructure.Services
 {
     public interface IForexService
     {
+        Task<List<ForexRate>> GetAllForex();
         Task<ForexRate> GetForexByDate(DateTime dateTime);
         Task<ForexRate> CreateForexRate(ForexRate forexRate);
     }

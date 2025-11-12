@@ -1,4 +1,4 @@
-namespace ETR.Nine.Services.Forex.Domain.Entity
+namespace ETR.Nine.Services.Forex.Infrastructure.Persistence.Database
 {
     public class ForexRate
     {

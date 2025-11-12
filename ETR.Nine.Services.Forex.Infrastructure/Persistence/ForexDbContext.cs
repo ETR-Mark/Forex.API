@@ -1,4 +1,4 @@
-using ETR.Nine.Services.Forex.Domain.Entity;
+using ETR.Nine.Services.Forex.Infrastructure.Persistence.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace ETR.Nine.Services.Forex.Infrastructure.Persistence

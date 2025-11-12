@@ -1,6 +1,5 @@
-using ETR.Nine.Services.Forex.Application.Interfaces.Repositories;
-using ETR.Nine.Services.Forex.Domain.Entity;
 using ETR.Nine.Services.Forex.Infrastructure.Persistence;
+using ETR.Nine.Services.Forex.Infrastructure.Persistence.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace ETR.Nine.Services.Forex.Infrastructure.Repositories
@@ -18,6 +17,12 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Repositories
             _dbContext.ForexRates.Add(forexRate);
             await _dbContext.SaveChangesAsync();
             return forexRate;
+        }
+
+        public async Task<List<ForexRate>> GetAll()
+        {
+            var forexRates = await _dbContext.ForexRates.ToListAsync();
+            return forexRates;
         }
 
         public async Task<ForexRate?> GetByDate(DateTime dateTime)
