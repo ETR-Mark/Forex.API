@@ -1,11 +1,22 @@
 using System;
 
-namespace ETR.Nine.Services.Forex.API.Models;
+namespace ETR.Nine.Services.Forex.Domain.Models;
 
 public class ForexRateModel
 {
     public int Id { get; set; }
-    public string BaseCurrency { get; set; } = null!;
-    public decimal Rate { get; set; }
-    public DateTime DateCreated { get; set; } = DateTime.UtcNow;
+    public string BaseCurrency { get; private set; } = string.Empty;
+    public decimal Rate { get; private set; }
+    public DateTime RateDate { get; private set; }
+
+    // public ForexRateModel(
+    //     string baseCurrency,
+    //     decimal rate,
+    //     DateTime rateDate
+    // )
+    // {
+    //     BaseCurrency = baseCurrency;
+    //     Rate = rate;
+    //     RateDate = rateDate;
+    // }
 }

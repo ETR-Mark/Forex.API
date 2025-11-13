@@ -28,7 +28,7 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Repositories
         public async Task<ForexRate?> GetByDate(DateTime dateTime)
         {
             var forexRate = await _dbContext.ForexRates
-                                        .Where(f => f.DateCreated == dateTime)
+                                        .Where(f => f.RateDate == dateTime)
                                         .FirstOrDefaultAsync();
             return forexRate;
         }

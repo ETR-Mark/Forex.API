@@ -27,19 +27,27 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
             return forexRates;
         }
 
-        public async Task<CurrencyRateResponse> GetForexByDate(DateTime date, string baseCurrency)
+        public async Task<ForexRate?> GetForexByDate(DateTime date, string baseCurrency)
         {
-            var currency = await _externalForexService.GetCurrencyRateAsync(date, baseCurrency);
+            var internalForexRate = await _forexRepository.GetByDate(date);
+            if(internalForexRate == null)
+            {
+                var currency = await _externalForexService.GetCurrencyRateAsync(date, baseCurrency);
+                var timeStampDate = DateTimeOffset.FromUnixTimeSeconds(currency.Timestamp).Date;
 
-            return currency;
-            
-            // var newForexRate = new ForexRate
-            // {
-            //     BaseCurrency = currency.Base,
-            //     Rate = currency.Rates["PHP"],
-            // };
+                if (currency.Rates.ContainsKey("PHP"))
+                {
+                    return await _forexRepository.Create(new ForexRate
+                    {
+                        BaseCurrency = baseCurrency,
+                        Rate = currency.Rates["PHP"],
+                        RateDate = timeStampDate
+                    });
+                }
 
-            // _forexRepository.Create(new );
+            }
+
+            return internalForexRate;
         }
     }
 }

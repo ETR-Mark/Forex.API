@@ -15,15 +15,19 @@ public class ExternalForexRepository : IExternalForexRepository
         _httpClient = httpClient;
         _settings = settings.Value;
     }
+
     public async Task<CurrencyRateResponse> GetCurrencyRateAsync(DateTime targetDate,string baseCurrency, string targetCurrency)
     {
         var url = $"{_settings.BaseUrl}/{targetDate:yyyy-MM-dd}?api_key={_settings.ApiKey}&base={baseCurrency}&currencies={targetCurrency}";
 
-        Console.WriteLine(url);
-
         var response = await _httpClient.GetAsync(url);
 
         var jsonResponse = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<CurrencyRateResponse>(jsonResponse);
+        var result = JsonSerializer.Deserialize<CurrencyRateResponse>(jsonResponse);
+
+        if (result is null)
+            throw new Exception("Failed to deserialize");
+
+        return result;
     }
 }
