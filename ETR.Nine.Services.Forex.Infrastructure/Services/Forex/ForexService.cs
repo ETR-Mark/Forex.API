@@ -1,14 +1,17 @@
 using ETR.Nine.Services.Forex.Infrastructure.Persistence.Database;
 using ETR.Nine.Services.Forex.Infrastructure.Repositories;
+using ETR.Nine.Services.Forex.Infrastructure.Services.Forex;
 
 namespace ETR.Nine.Services.Forex.Infrastructure.Services
 {
     public class ForexService : IForexService
     {
         private readonly IForexRepository _forexRepository;
-        public ForexService(IForexRepository forexRepository)
+        private readonly IExternalForexService _externalForexService;
+        public ForexService(IForexRepository forexRepository, IExternalForexService externalForexService)
         {
             _forexRepository = forexRepository;
+            _externalForexService = externalForexService;
         }
 
         public async Task<ForexRate> CreateForexRate(ForexRate forexRate)
@@ -23,9 +26,17 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
             return forexRates;
         }
 
-        public Task<ForexRate> GetForexByDate(DateTime dateTime)
+        public async Task<ForexRate> GetForexByDate(DateTime date, string baseCurrency)
         {
-            throw new NotImplementedException();
+            var currency = await _externalForexService.GetCurrencyRateAsync(date, baseCurrency);
+            var newForexRate = new ForexRate
+            {
+                BaseCurrency = currency.Base,
+                Rate = currency.Rates["PHP"],
+                DateCreated = date
+            };
+
+            return newForexRate;
         }
     }
 }

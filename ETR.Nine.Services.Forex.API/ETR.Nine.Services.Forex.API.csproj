@@ -21,4 +21,8 @@
     <ProjectReference Include="..\ETR.Nine.Services.Forex.Infrastructure\ETR.Nine.Services.Forex.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Endpoints\" />
+  </ItemGroup>
+
 </Project>
