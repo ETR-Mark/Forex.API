@@ -4,6 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ETR.Nine.Services.Forex.Infrastructure.Repositories
 {
+    public interface IForexRepository
+    {
+        Task<List<ForexRate>> GetAll();
+        Task<ForexRate?> GetByDate(DateTime dateTime);
+        Task<ForexRate> Create(ForexRate forexRate);
+    }
+    
     public class ForexRepository : IForexRepository
     {
         private readonly IAppDbContext _dbContext;
@@ -21,16 +28,14 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Repositories
 
         public async Task<List<ForexRate>> GetAll()
         {
-            var forexRates = await _dbContext.ForexRates.ToListAsync();
-            return forexRates;
+            return await _dbContext.ForexRates.ToListAsync();
         }
 
         public async Task<ForexRate?> GetByDate(DateTime dateTime)
         {
-            var forexRate = await _dbContext.ForexRates
+            return await _dbContext.ForexRates
                                         .Where(f => f.RateDate == dateTime)
                                         .FirstOrDefaultAsync();
-            return forexRate;
         }
     }
 }

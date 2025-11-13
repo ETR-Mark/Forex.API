@@ -33,18 +33,22 @@ forexGroup.MapGet("/{date}", async (string date, string? c, IForexService forexS
         string formattedDate = parsedDate.ToString("yyyy-MM-dd");
         string dateToday = utcNow.ToString("yyyy-MM-dd");
 
-        var currency = await forexService.GetForexByDate(parsedDate, c);
-        return Results.Ok(currency);
-
         
-        // if (parsedDate.Date == utcNow.Date)
-        // {
-        //     return Results.Ok($"Date Provided: before:{parsedDate} after: {formattedDate} ||| before: {utcNow} after: {dateToday}");
-        // }
-        // else
-        // {
-        //     return Results.Ok($"Date Provided: before:{parsedDate} after: {formattedDate} ||| before: {utcNow} after: {dateToday}");
-        // }
+        if (parsedDate.Date == utcNow.Date)
+        {
+            return Results.Ok("");
+        }
+        else
+        {
+            var forex = await forexService.GetForexByDate(parsedDate, c);
+            var response = new  {
+                                    Data = new[]
+                                    {
+                                        new { From = c, To = "PHP", Rate = forex.Rate }
+                                    }
+                                };
+            return Results.Ok(response);    
+        }
     }
     else
     {

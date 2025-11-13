@@ -5,6 +5,10 @@ using ETR.Nine.Services.Forex.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
 
 namespace ETR.Nine.Services.Forex.Infrastructure.Repositories.Forex;
+public interface IExternalForexRepository
+{
+    Task<CurrencyRateResponse> GetCurrencyRateAsync(DateTime targetDate, string baseCurrency, string targetCurrency);
+}
 
 public class ExternalForexRepository : IExternalForexRepository
 {

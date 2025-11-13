@@ -1,10 +1,16 @@
-using ETR.Nine.Services.Forex.Application.Models;
 using ETR.Nine.Services.Forex.Infrastructure.Persistence.Database;
 using ETR.Nine.Services.Forex.Infrastructure.Repositories;
 using ETR.Nine.Services.Forex.Infrastructure.Services.Forex;
 
 namespace ETR.Nine.Services.Forex.Infrastructure.Services
 {
+    public interface IForexService
+    {
+        Task<List<ForexRate>> GetAllForex();
+        Task<ForexRate?> GetForexByDate(DateTime date, string baseCurrency);
+        Task<ForexRate> CreateForexRate(ForexRate forexRate);
+    }
+    
     public class ForexService : IForexService
     {
         private readonly IForexRepository _forexRepository;
@@ -44,7 +50,6 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
                         RateDate = timeStampDate
                     });
                 }
-
             }
 
             return internalForexRate;
