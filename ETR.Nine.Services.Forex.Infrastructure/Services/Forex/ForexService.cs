@@ -1,3 +1,4 @@
+using ETR.Nine.Services.Forex.Application.Models;
 using ETR.Nine.Services.Forex.Infrastructure.Persistence.Database;
 using ETR.Nine.Services.Forex.Infrastructure.Repositories;
 using ETR.Nine.Services.Forex.Infrastructure.Services.Forex;
@@ -26,17 +27,20 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
             return forexRates;
         }
 
-        public async Task<ForexRate> GetForexByDate(DateTime date, string baseCurrency)
+        public async Task<CurrencyRateResponse> GetForexByDate(DateTime date, string baseCurrency)
         {
             var currency = await _externalForexService.GetCurrencyRateAsync(date, baseCurrency);
-            var newForexRate = new ForexRate
-            {
-                BaseCurrency = currency.Base,
-                Rate = currency.Rates["PHP"],
-                DateCreated = date
-            };
 
-            return newForexRate;
+            return currency;
+            
+            // var newForexRate = new ForexRate
+            // {
+            //     BaseCurrency = currency.Base,
+            //     Rate = currency.Rates["PHP"],
+            // };
+
+            // _forexRepository.Create(new );
         }
     }
 }
+

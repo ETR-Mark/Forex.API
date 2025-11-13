@@ -17,9 +17,12 @@ public class ExternalForexRepository : IExternalForexRepository
     }
     public async Task<CurrencyRateResponse> GetCurrencyRateAsync(DateTime targetDate,string baseCurrency, string targetCurrency)
     {
-        var url = $"{_settings.BaseUrl}/{targetDate}?api_key={_settings.ApiKey}&base={baseCurrency}$currencies={targetCurrency}";
+        var url = $"{_settings.BaseUrl}/{targetDate:yyyy-MM-dd}?api_key={_settings.ApiKey}&base={baseCurrency}&currencies={targetCurrency}";
+
+        Console.WriteLine(url);
+
         var response = await _httpClient.GetAsync(url);
-        response.EnsureSuccessStatusCode();
+
         var jsonResponse = await response.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<CurrencyRateResponse>(jsonResponse);
     }

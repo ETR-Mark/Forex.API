@@ -1,5 +1,4 @@
 using System;
-using System.Data.Common;
 using System.Globalization;
 using ETR.Nine.Services.Forex.Infrastructure;
 using ETR.Nine.Services.Forex.Infrastructure.Services;
@@ -30,17 +29,22 @@ forexGroup.MapGet("/{date}", async (string date, string? c, IForexService forexS
 {
     if (DateTime.TryParseExact(date, "MMddyyyy", null, DateTimeStyles.None, out var parsedDate))
     {
-        string dateToday = DateTime.UtcNow.ToString("MM-dd-yyyy");
-        // if (parsedDate.Date == DateTime.UtcNow.Date)
+        DateTime utcNow = DateTime.UtcNow;
+        string formattedDate = parsedDate.ToString("yyyy-MM-dd");
+        string dateToday = utcNow.ToString("yyyy-MM-dd");
+
+        var currency = await forexService.GetForexByDate(parsedDate, c);
+        return Results.Ok(currency);
+
+        
+        // if (parsedDate.Date == utcNow.Date)
         // {
-        //     return Results.Ok($"Forex date output: {parsedDate:MM-dd-yyyy} (Today) ||| Today is {dateToday} FROM: {c}");
+        //     return Results.Ok($"Date Provided: before:{parsedDate} after: {formattedDate} ||| before: {utcNow} after: {dateToday}");
         // }
         // else
         // {
-        //     return Results.Ok($"Forex date output: {parsedDate:MM-dd-yyyy} (Other date) ||| Today is {dateToday} FROM: {c}");
+        //     return Results.Ok($"Date Provided: before:{parsedDate} after: {formattedDate} ||| before: {utcNow} after: {dateToday}");
         // }
-        var currency = await forexService.GetForexByDate(parsedDate, c);
-        return Results.Ok(currency);
     }
     else
     {
