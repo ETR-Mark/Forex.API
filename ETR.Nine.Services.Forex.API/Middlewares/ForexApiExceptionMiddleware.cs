@@ -17,7 +17,7 @@ public class ForexApiExceptionMiddleware
         {
             await _next(httpContext);
         }
-        
+
         // For Forex
         catch (ForexApiException fe)
         {

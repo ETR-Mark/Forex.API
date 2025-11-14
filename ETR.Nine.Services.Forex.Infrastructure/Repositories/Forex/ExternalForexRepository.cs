@@ -22,9 +22,9 @@ public class ExternalForexRepository : IExternalForexRepository
         _settings = settings.Value;
     }
 
-    private RestClient Client => new RestClient($"{_settings.BaseUrl}", configureSerialization: s =>
+    private RestClient Client => new RestClient($"{_settings.BaseUrl}", configureSerialization: serialization =>
     {
-        s.UseSystemTextJson(new JsonSerializerOptions
+        serialization.UseSystemTextJson(new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });
@@ -63,9 +63,9 @@ public class ExternalForexRepository : IExternalForexRepository
 
         if(response.Data == null) throw new ForexApiException($"FOREX-455", "Failed to deserialize");
 
-       if (response.Data.Success == false)
+        if (response.Data.Success == false)
         {
-            throw new ForexApiException($"FOREX-455", response.Data.Error?.Message ?? "External Forex Api Error");
+            throw new ForexApiException($"FOREX-455", response.Data.Error.Message ?? "External Forex Api Error");
         }
 
         return response.Data;
