@@ -1,16 +1,7 @@
 using System;
+using ETR.Nine.Services.Forex.Application.Exceptions;
 
 namespace ETR.Nine.Services.Forex.API.Middlewares;
-
-public class ForexApiException : Exception
-{
-    public string Code { get; }
-
-    public ForexApiException(string code, string message) : base(message)
-    {
-        Code = code;
-    }
-}
 
 public class ForexApiExceptionMiddleware
 {
@@ -26,15 +17,32 @@ public class ForexApiExceptionMiddleware
         {
             await _next(httpContext);
         }
-        catch (ForexApiException e)
+        
+        // For Forex
+        catch (ForexApiException fe)
         {
             httpContext.Response.ContentType = "application/json";
-            httpContext.Response.StatusCode = 455;
+            httpContext.Response.StatusCode = 400; // Bad API request
 
             var response = new
             {
-              e.Code,
-              Description = e.Message  
+              Code = fe.Code,
+              Description = fe.Message  
+            };
+
+            await httpContext.Response.WriteAsJsonAsync(response);
+        }
+
+        // For my internal
+        catch (Exception ex)
+        {
+            httpContext.Response.ContentType = "application/json";
+            httpContext.Response.StatusCode = 500; // Server Error
+
+            var response = new
+            {
+              Code = $"INTERNAL_ERROR",
+              Description = ex.Message  
             };
 
             await httpContext.Response.WriteAsJsonAsync(response);

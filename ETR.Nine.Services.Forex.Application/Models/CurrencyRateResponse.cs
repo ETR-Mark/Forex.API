@@ -11,6 +11,13 @@ public class CurrencyRateResponse
     
     public long Timestamp { get; set; }
 
-    // "rates": { "PHP": 58.9249845 }
     public Dictionary<string, decimal> Rates { get; set; } = new();
+
+    public ForexAPIError Error {get; set;}
+}
+
+public class ForexAPIError
+{
+    public int StatusCode { get; set; } 
+    public string Message { get; set; } = string.Empty;
 }

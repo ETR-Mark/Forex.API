@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using ETR.Nine.Services.Forex.API.Middlewares;
+using ETR.Nine.Services.Forex.Application.Models;
 using ETR.Nine.Services.Forex.Infrastructure;
 using ETR.Nine.Services.Forex.Infrastructure.Services;
 using ETR.Nine.Services.Forex.Infrastructure.Services.Forex;
@@ -30,11 +31,7 @@ forexGroup.MapGet("/{date}", async (string date, string? c, IForexService forexS
     if(!isValidDate) return Results.BadRequest("Invalid date format. Use DDMMYYYY.");
 
     var forex = await forexService.GetForexByDate(parsedDate, c);
-    var response = new  {
-                            Data = new[]{
-                                new { From = c, To = "PHP", Rate = forex.Rate }
-                            }
-                        };
+    var response = new SuccessResponse(c, "PHP", forex.Rate);
     return Results.Ok(response);    
 });
 

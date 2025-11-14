@@ -1,9 +1,11 @@
 using System;
 using System.Text.Json;
+using ETR.Nine.Services.Forex.Application.Exceptions;
 using ETR.Nine.Services.Forex.Application.Models;
 using ETR.Nine.Services.Forex.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
 using RestSharp;
+using RestSharp.Serializers.Json;
 
 namespace ETR.Nine.Services.Forex.Infrastructure.Repositories.Forex;
 public interface IExternalForexRepository
@@ -20,7 +22,14 @@ public class ExternalForexRepository : IExternalForexRepository
         _settings = settings.Value;
     }
 
-    private RestClient Client => new RestClient($"{_settings.BaseUrl}");
+    private RestClient Client => new RestClient($"{_settings.BaseUrl}", configureSerialization: s =>
+    {
+        s.UseSystemTextJson(new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+    });
+
     private RestRequest CreateRequest(string path, string baseCurrency, string targetCurrency)
     {
         var request = new RestRequest(path, Method.Get);
@@ -33,25 +42,30 @@ public class ExternalForexRepository : IExternalForexRepository
     public async Task<CurrencyRateResponse> GetCurrencyRateAsync(DateTime targetDate,string baseCurrency, string targetCurrency)
     {
         var request = CreateRequest($"/{targetDate:yyyy-MM-dd}", baseCurrency, targetCurrency);
-
+        
         var response = await Client.ExecuteAsync<CurrencyRateResponse>(request);
 
-        if(response.Data == null)
-        {
-            throw new Exception("Failed to deserialize");
-        } 
+        if(response.Data == null) throw new ForexApiException("FOREX-455", "Failed to deserialize");
 
+        if (response.Data.Success == false)
+        {
+            throw new ForexApiException($"FOREX-455", response.Data.Error?.Message ?? "External Forex Api Error");
+        }
+       
         return response.Data;
     }
 
     public async Task<CurrencyRateResponse> GetCurrencyRateTodayAsync(string baseCurrency, string targetCurrency)
     {
         var request = CreateRequest("/latest", baseCurrency, targetCurrency);
+
         var response = await Client.ExecuteAsync<CurrencyRateResponse>(request);
 
-        if(response.Data == null)
+        if(response.Data == null) throw new ForexApiException($"FOREX-455", "Failed to deserialize");
+
+       if (response.Data.Success == false)
         {
-            throw new Exception("Failed to deserialize");
+            throw new ForexApiException($"FOREX-455", response.Data.Error?.Message ?? "External Forex Api Error");
         }
 
         return response.Data;

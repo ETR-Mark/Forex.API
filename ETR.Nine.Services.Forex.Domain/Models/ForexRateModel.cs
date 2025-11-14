@@ -8,15 +8,4 @@ public class ForexRateModel
     public string BaseCurrency { get; private set; } = string.Empty;
     public decimal Rate { get; private set; }
     public DateTime RateDate { get; private set; }
-
-    // public ForexRateModel(
-    //     string baseCurrency,
-    //     decimal rate,
-    //     DateTime rateDate
-    // )
-    // {
-    //     BaseCurrency = baseCurrency;
-    //     Rate = rate;
-    //     RateDate = rateDate;
-    // }
 }
