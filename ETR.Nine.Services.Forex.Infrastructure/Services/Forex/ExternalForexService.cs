@@ -7,6 +7,7 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services.Forex;
 public interface IExternalForexService
 {
     Task<CurrencyRateResponse> GetCurrencyRateAsync(DateTime targetDate,string baseCurrency);
+    Task<CurrencyRateResponse> GetCurrencyRateTodayAsync(string baseCurrency);
 }
 
 public class ExternalForexService : IExternalForexService
@@ -22,5 +23,11 @@ public class ExternalForexService : IExternalForexService
     {
         var currency = await _externalForexRepository.GetCurrencyRateAsync(targetDate, baseCurrency, "PHP");
         return currency;
+    }
+
+    public async Task<CurrencyRateResponse> GetCurrencyRateTodayAsync(string baseCurrency)
+    {
+        var currencyToday = await _externalForexRepository.GetCurrencyRateTodayAsync(baseCurrency, "PHP");
+        return currencyToday;
     }
 }

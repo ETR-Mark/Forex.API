@@ -3,35 +3,57 @@ using System.Text.Json;
 using ETR.Nine.Services.Forex.Application.Models;
 using ETR.Nine.Services.Forex.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
+using RestSharp;
 
 namespace ETR.Nine.Services.Forex.Infrastructure.Repositories.Forex;
 public interface IExternalForexRepository
 {
     Task<CurrencyRateResponse> GetCurrencyRateAsync(DateTime targetDate, string baseCurrency, string targetCurrency);
+    Task<CurrencyRateResponse> GetCurrencyRateTodayAsync(string baseCurrency, string targetCurrency);
 }
 
 public class ExternalForexRepository : IExternalForexRepository
 {
-    private readonly HttpClient _httpClient;
     private readonly ExternalForexAPISettings _settings;
-    public ExternalForexRepository(HttpClient httpClient, IOptions<ExternalForexAPISettings> settings)
+    public ExternalForexRepository(IOptions<ExternalForexAPISettings> settings)
     {
-        _httpClient = httpClient;
         _settings = settings.Value;
+    }
+
+    private RestClient Client => new RestClient($"{_settings.BaseUrl}");
+    private RestRequest CreateRequest(string path, string baseCurrency, string targetCurrency)
+    {
+        var request = new RestRequest(path, Method.Get);
+        request.AddQueryParameter("api_key", _settings.ApiKey);
+        request.AddQueryParameter("base", baseCurrency);
+        request.AddQueryParameter("currencies", targetCurrency);
+        return request;
     }
 
     public async Task<CurrencyRateResponse> GetCurrencyRateAsync(DateTime targetDate,string baseCurrency, string targetCurrency)
     {
-        var url = $"{_settings.BaseUrl}/{targetDate:yyyy-MM-dd}?api_key={_settings.ApiKey}&base={baseCurrency}&currencies={targetCurrency}";
+        var request = CreateRequest($"/{targetDate:yyyy-MM-dd}", baseCurrency, targetCurrency);
 
-        var response = await _httpClient.GetAsync(url);
+        var response = await Client.ExecuteAsync<CurrencyRateResponse>(request);
 
-        var jsonResponse = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<CurrencyRateResponse>(jsonResponse);
-
-        if (result is null)
+        if(response.Data == null)
+        {
             throw new Exception("Failed to deserialize");
+        } 
 
-        return result;
+        return response.Data;
+    }
+
+    public async Task<CurrencyRateResponse> GetCurrencyRateTodayAsync(string baseCurrency, string targetCurrency)
+    {
+        var request = CreateRequest("/latest", baseCurrency, targetCurrency);
+        var response = await Client.ExecuteAsync<CurrencyRateResponse>(request);
+
+        if(response.Data == null)
+        {
+            throw new Exception("Failed to deserialize");
+        }
+
+        return response.Data;
     }
 }

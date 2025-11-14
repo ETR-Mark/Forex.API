@@ -38,8 +38,22 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
             var internalForexRate = await _forexRepository.GetByDate(date);
             if(internalForexRate == null)
             {
+                DateTime utcNow = DateTime.UtcNow;
+                if(date.Date == utcNow.Date)
+                {
+                    var currencyToday = await _externalForexService.GetCurrencyRateTodayAsync(baseCurrency);
+
+                    if (currencyToday.Rates.ContainsKey("PHP"))
+                    {
+                        return await _forexRepository.Create(new ForexRate
+                        {
+                            BaseCurrency = baseCurrency,
+                            Rate = currencyToday.Rates["PHP"],
+                            RateDate = utcNow.Date
+                        });
+                    }
+                }
                 var currency = await _externalForexService.GetCurrencyRateAsync(date, baseCurrency);
-                var timeStampDate = DateTimeOffset.FromUnixTimeSeconds(currency.Timestamp).Date;
 
                 if (currency.Rates.ContainsKey("PHP"))
                 {
@@ -47,7 +61,7 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
                     {
                         BaseCurrency = baseCurrency,
                         Rate = currency.Rates["PHP"],
-                        RateDate = timeStampDate
+                        RateDate = DateTimeOffset.FromUnixTimeSeconds(currency.Timestamp).UtcDateTime.Date
                     });
                 }
             }
