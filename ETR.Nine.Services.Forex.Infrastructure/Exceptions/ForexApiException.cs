@@ -1,6 +1,6 @@
 using System;
 
-namespace ETR.Nine.Services.Forex.Application.Exceptions;
+namespace ETR.Nine.Services.Forex.Infrastructure.Exceptions;
 
 public class ForexApiException : Exception
 {

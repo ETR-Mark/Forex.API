@@ -8,9 +8,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ETR.Nine.Services.Forex.Domain\ETR.Nine.Services.Forex.Domain.csproj" />
+    <ProjectReference Include="..\ETR.Nine.Services.Forex.Infrastructure\ETR.Nine.Services.Forex.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    
+    <PackageReference Include="MediatR" Version="13.1.0" />
     
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     

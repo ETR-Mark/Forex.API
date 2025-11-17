@@ -1,5 +1,5 @@
 using System;
-using ETR.Nine.Services.Forex.Application.Exceptions;
+using ETR.Nine.Services.Forex.Infrastructure.Exceptions;
 
 namespace ETR.Nine.Services.Forex.API.Middlewares;
 

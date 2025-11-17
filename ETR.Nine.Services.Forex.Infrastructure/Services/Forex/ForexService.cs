@@ -1,4 +1,4 @@
-using ETR.Nine.Services.Forex.Application.Common.Results;
+using ETR.Nine.Services.Forex.Domain;
 using ETR.Nine.Services.Forex.Infrastructure.Persistence.Database;
 using ETR.Nine.Services.Forex.Infrastructure.Repositories;
 using ETR.Nine.Services.Forex.Infrastructure.Services.Forex;

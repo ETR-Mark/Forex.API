@@ -17,17 +17,15 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.0" />
-
-    
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ETR.Nine.Services.Forex.Application\ETR.Nine.Services.Forex.Application.csproj" />
+    <!-- <ProjectReference Include="..\ETR.Nine.Services.Forex.Application\ETR.Nine.Services.Forex.Application.csproj" /> -->
     <ProjectReference Include="..\ETR.Nine.Services.Forex.Domain\ETR.Nine.Services.Forex.Domain.csproj" />
   </ItemGroup>
 

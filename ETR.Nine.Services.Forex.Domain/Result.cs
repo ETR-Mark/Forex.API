@@ -1,6 +1,6 @@
 using System;
 
-namespace ETR.Nine.Services.Forex.Application.Common.Results;
+namespace ETR.Nine.Services.Forex.Domain;
 
 public class Result<T>
 {

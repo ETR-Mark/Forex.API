@@ -1,7 +1,7 @@
 using System;
 using System.Text.Json;
-using ETR.Nine.Services.Forex.Application.Exceptions;
-using ETR.Nine.Services.Forex.Application.Models;
+using ETR.Nine.Services.Forex.Domain.Models;
+using ETR.Nine.Services.Forex.Infrastructure.Exceptions;
 using ETR.Nine.Services.Forex.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
 using RestSharp;
@@ -10,8 +10,8 @@ using RestSharp.Serializers.Json;
 namespace ETR.Nine.Services.Forex.Infrastructure.Repositories.Forex;
 public interface IExternalForexRepository
 {
-    Task<CurrencyRateResponse> GetCurrencyRateAsync(DateTime targetDate, string baseCurrency, string targetCurrency);
-    Task<CurrencyRateResponse> GetCurrencyRateTodayAsync(string baseCurrency, string targetCurrency);
+    Task<ExternalForexResponseModel> GetCurrencyRateAsync(DateTime targetDate, string baseCurrency, string targetCurrency);
+    Task<ExternalForexResponseModel> GetCurrencyRateTodayAsync(string baseCurrency, string targetCurrency);
 }
 
 public class ExternalForexRepository : IExternalForexRepository
@@ -39,11 +39,11 @@ public class ExternalForexRepository : IExternalForexRepository
         return request;
     }
 
-    public async Task<CurrencyRateResponse> GetCurrencyRateAsync(DateTime targetDate,string baseCurrency, string targetCurrency)
+    public async Task<ExternalForexResponseModel> GetCurrencyRateAsync(DateTime targetDate,string baseCurrency, string targetCurrency)
     {
         var request = CreateRequest($"/{targetDate:yyyy-MM-dd}", baseCurrency, targetCurrency);
         
-        var response = await Client.ExecuteAsync<CurrencyRateResponse>(request);
+        var response = await Client.ExecuteAsync<ExternalForexResponseModel>(request);
 
         if(response.Data == null) throw new ForexApiException("FOREX-455", "Failed to deserialize");
 
@@ -55,11 +55,11 @@ public class ExternalForexRepository : IExternalForexRepository
         return response.Data;
     }
 
-    public async Task<CurrencyRateResponse> GetCurrencyRateTodayAsync(string baseCurrency, string targetCurrency)
+    public async Task<ExternalForexResponseModel> GetCurrencyRateTodayAsync(string baseCurrency, string targetCurrency)
     {
         var request = CreateRequest("/latest", baseCurrency, targetCurrency);
 
-        var response = await Client.ExecuteAsync<CurrencyRateResponse>(request);
+        var response = await Client.ExecuteAsync<ExternalForexResponseModel>(request);
 
         if(response.Data == null) throw new ForexApiException($"FOREX-455", "Failed to deserialize");
 
