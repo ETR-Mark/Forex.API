@@ -10,7 +10,7 @@ public class GetAllForexEndpoint : IEndpoint
         app.MapGet("/internal/forex", async (IForexService forexService) =>
         {
             var result = await forexService.GetAllForex();
-            if(!result.Success) return Results.BadRequest();
+            if(!result.Success) return Results.BadRequest(result.Error);
             return Results.Ok(result);
         });
     }

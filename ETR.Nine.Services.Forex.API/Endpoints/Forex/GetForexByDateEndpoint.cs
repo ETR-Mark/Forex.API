@@ -15,7 +15,7 @@ public class GetForexByDateEndpoint : IEndpoint
             if(!isValidDate) return Results.BadRequest("Invalid date format. Use DDMMYYYY.");
 
             var result = await forexService.GetForexByDate(parsedDate, c);
-            if(!result.Success) return Results.BadRequest();
+            if(!result.Success) return Results.BadRequest(result.Error);
             var response = new SuccessResponse(c, "PHP", result.Value.Rate);
             return Results.Ok(response);
         });
