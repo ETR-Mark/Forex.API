@@ -1,5 +1,6 @@
 using System;
 using ETR.Nine.Services.Forex.Application.Forex.Queries.GetAllForex;
+using ETR.Nine.Services.Forex.Infrastructure.Exceptions;
 using ETR.Nine.Services.Forex.Infrastructure.Services;
 using MediatR;
 
@@ -13,7 +14,7 @@ public class GetAllForexEndpoint : IEndpoint
         {
             var query = new GetAllForexQuery();
             var result = await mediator.Send(query);
-            if(!result.Success) return Results.BadRequest(result.Error);
+            if(!result.Success) throw new ForexApiException("FOREX-455", result.Error ?? "API ERROR");
             return Results.Ok(result);
         });
     }

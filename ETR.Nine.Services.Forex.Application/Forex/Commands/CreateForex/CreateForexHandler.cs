@@ -16,30 +16,14 @@ public class CreateForexHandler : IRequestHandler<CreateForexCommand, Result<For
 
     public async Task<Result<ForexRate>> Handle(CreateForexCommand request, CancellationToken cancellationToken)
     {
-        try
+        var newForexRate = new ForexRate
         {
-            var newForexRate = new ForexRate
-            {
-                BaseCurrency = request.BaseCurrency,
-                Rate = request.Rate,
-                RateDate = request.RateDate
-            };
+            BaseCurrency = request.BaseCurrency,
+            Rate = request.Rate,
+            RateDate = request.RateDate
+        };
 
-            var createdForex = await _forexRepository.Create(newForexRate);
-            return Result<ForexRate>.Ok(createdForex);
-            
-        }catch (Exception ex)
-        {
-            return Result<ForexRate>.Fail(ex.Message);
-        }
+        var createdForex = await _forexRepository.Create(newForexRate);
+        return Result<ForexRate>.Ok(createdForex);
     }
 }
-
-// try
-// {
-//     var newForexRate = await _forexRepository.Create(forexRate);
-//     return Result<ForexRate>.Ok(newForexRate);
-// } catch (Exception ex)
-// {
-//     return Result<ForexRate>.Fail(ex.Message);
-// }

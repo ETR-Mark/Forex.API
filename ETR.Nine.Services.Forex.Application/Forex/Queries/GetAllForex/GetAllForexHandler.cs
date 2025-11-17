@@ -14,20 +14,14 @@ public class GetAllForexHandler : IRequestHandler<GetAllForexQuery, Result<List<
     }
     public async Task<Result<List<ForexListModel>>> Handle(GetAllForexQuery request, CancellationToken cancellationToken)
     {
-        try
+        var forexRates = await _forexRepository.GetAll();
+        var forexList = forexRates.Select(f => new ForexListModel
         {
-            var forexRates = await _forexRepository.GetAll();
-            var forexList = forexRates.Select(f => new ForexListModel
-            {
-                BaseCurrency = f.BaseCurrency,
-                Rate = f.Rate,
-                RateDate = f.RateDate,
-                DateCreated = f.DateCreated
-            }).ToList();
-            return Result<List<ForexListModel>>.Ok(forexList);
-        } catch(Exception ex)
-        {
-            return Result<List<ForexListModel>>.Fail(ex.Message);
-        }
+            BaseCurrency = f.BaseCurrency,
+            Rate = f.Rate,
+            RateDate = f.RateDate,
+            DateCreated = f.DateCreated
+        }).ToList();
+        return Result<List<ForexListModel>>.Ok(forexList);
     }
 }

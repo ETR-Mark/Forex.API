@@ -51,7 +51,7 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
         {
             try
             {
-                var internalForexRate = await _forexRepository.GetByDate(date);
+                var internalForexRate = await _forexRepository.GetByDate(baseCurrency, date);
                 if(internalForexRate == null)
                 {
                     DateTime utcNow = DateTime.UtcNow;
@@ -64,7 +64,7 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
                             var createdForexToday = await _forexRepository.Create(new ForexRate
                             {
                                 BaseCurrency = baseCurrency,
-                                Rate = currencyToday.Rates["PHP"],
+                                Rate = currencyToday.Rates["PHP"], 
                                 RateDate = utcNow.Date
                             });
 

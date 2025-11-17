@@ -22,7 +22,7 @@ public class ForexApiExceptionMiddleware
         catch (ForexApiException fe)
         {
             httpContext.Response.ContentType = "application/json";
-            httpContext.Response.StatusCode = 400; // Bad API request
+            httpContext.Response.StatusCode = 455;
 
             var response = new
             {
@@ -37,7 +37,7 @@ public class ForexApiExceptionMiddleware
         catch (Exception ex)
         {
             httpContext.Response.ContentType = "application/json";
-            httpContext.Response.StatusCode = 500; // Server Error
+            httpContext.Response.StatusCode = 500;
 
             var response = new
             {

@@ -7,7 +7,7 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Repositories
     public interface IForexRepository
     {
         Task<List<ForexRate>> GetAll();
-        Task<ForexRate?> GetByDate(DateTime dateTime);
+        Task<ForexRate?> GetByDate(string baseCurrency, DateTime dateTime);
         Task<ForexRate> Create(ForexRate forexRate);
     }
     
@@ -31,10 +31,10 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Repositories
             return await _dbContext.ForexRates.ToListAsync();
         }
 
-        public async Task<ForexRate?> GetByDate(DateTime dateTime)
+        public async Task<ForexRate?> GetByDate(string baseCurrency, DateTime dateTime)
         {
             return await _dbContext.ForexRates
-                                        .Where(f => f.RateDate == dateTime)
+                                        .Where(f => f.BaseCurrency == baseCurrency && f.RateDate == dateTime)
                                         .FirstOrDefaultAsync();
         }
     }
