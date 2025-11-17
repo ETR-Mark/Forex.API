@@ -1,4 +1,5 @@
 using ETR.Nine.Services.Forex.API.Endpoints;
+using ETR.Nine.Services.Forex.API.Endpoints.Forex;
 using ETR.Nine.Services.Forex.API.Middlewares;
 using ETR.Nine.Services.Forex.Infrastructure;
 
@@ -11,6 +12,7 @@ var app = builder.Build();
 
 app.UseMiddleware<ForexApiExceptionMiddleware>();
 
-new ForexEndpoint().MapEndPoint(app);
+new GetAllForexEndpoint().MapEndPoint(app);
+new GetForexByDateEndpoint().MapEndPoint(app);
 
 app.Run();
