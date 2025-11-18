@@ -1,12 +1,13 @@
 using System;
+using ETR.Nine.Mediator;
 using ETR.Nine.Services.Forex.Domain;
+using ETR.Nine.Services.Forex.Infrastructure.Exceptions;
 using ETR.Nine.Services.Forex.Infrastructure.Persistence.Database;
 using ETR.Nine.Services.Forex.Infrastructure.Repositories;
-using MediatR;
 
 namespace ETR.Nine.Services.Forex.Application.Forex.Commands.CreateForex;
 
-public class CreateForexHandler : IRequestHandler<CreateForexCommand, Result<ForexRate>>
+public class CreateForexHandler : IRequestHandler<CreateForexCommand, ForexRate>
 {
     private readonly IForexRepository _forexRepository;
     public CreateForexHandler(IForexRepository forexRepository)
@@ -14,16 +15,26 @@ public class CreateForexHandler : IRequestHandler<CreateForexCommand, Result<For
         _forexRepository = forexRepository;
     }
 
-    public async Task<Result<ForexRate>> Handle(CreateForexCommand request, CancellationToken cancellationToken)
+    public async Task<Result<ForexRate>> Handle(CreateForexCommand request, CancellationToken cancellationToken = default)
     {
-        var newForexRate = new ForexRate
+        try
         {
-            BaseCurrency = request.BaseCurrency,
-            Rate = request.Rate,
-            RateDate = request.RateDate
-        };
+            var newForexRate = new ForexRate
+            {
+                BaseCurrency = request.BaseCurrency,
+                Rate = request.Rate,
+                RateDate = request.RateDate 
+            };
 
-        var createdForex = await _forexRepository.Create(newForexRate);
-        return Result<ForexRate>.Ok(createdForex);
+            var createdForex = await _forexRepository.Create(newForexRate);
+            return new Result<ForexRate>
+            {
+                Successful = true,
+                Data = createdForex
+            };
+        } catch(ForexApiException fe)
+        {
+            throw new ForexApiException("FOREX-455", fe.Message ?? "CREATE FOREX COMMAND ERROR");
+        }
     }
 }

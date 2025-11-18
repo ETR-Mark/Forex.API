@@ -15,11 +15,11 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Persistence
                 .AddJsonFile("appsettings.Development.json")
                 .Build();
 
-            var optionsBuilder = new DbContextOptionsBuilder<ForexDbContext>();
+            var builder = new DbContextOptionsBuilder<ForexDbContext>();
             var connectionString = configuration.GetConnectionString("SQLiteConnection");
-            optionsBuilder.UseSqlite(connectionString);
+            builder.UseSqlite(connectionString);
 
-            return new ForexDbContext(optionsBuilder.Options);
+            return new ForexDbContext(builder.Options);
         }
     }
 }

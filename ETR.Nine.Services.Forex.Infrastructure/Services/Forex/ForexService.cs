@@ -27,10 +27,24 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
             try
             {
                 var newForexRate = await _forexRepository.Create(forexRate);
-                return Result<ForexRate>.Ok(newForexRate);
+                // return Result<ForexRate>.Ok(newForexRate);
+                return new Result<ForexRate>
+                {
+                    Successful = true,
+                    Data = newForexRate
+                };
             } catch (Exception ex)
             {
-                return Result<ForexRate>.Fail(ex.Message);
+                // return Result<ForexRate>.Fail(ex.Message);
+                return new Result<ForexRate>
+                {
+                    Successful = false,
+                    Error = new Error
+                    {
+                        Code = "FOREX-455",
+                        Message = ex.Message
+                    },
+                };
             }
         }
 
@@ -39,11 +53,25 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
             try
             {
                 var forexRates = await _forexRepository.GetAll();
-                return Result<List<ForexRate>>.Ok(forexRates);
+                // return Result<List<ForexRate>>.Ok(forexRates);
+                return new Result<List<ForexRate>>
+                {
+                    Successful = true,
+                    Data = forexRates
+                };
             }
             catch (Exception ex)
             {
-                return Result<List<ForexRate>>.Fail(ex.Message);
+                // return Result<List<ForexRate>>.Fail(ex.Message);
+                return new Result<List<ForexRate>>
+                {
+                    Successful = false,
+                    Error = new Error
+                    {
+                        Code = "FOREX-455",
+                        Message = ex.Message
+                    },
+                };
             }
         }
 
@@ -68,7 +96,12 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
                                 RateDate = utcNow.Date
                             });
 
-                            return Result<ForexRate>.Ok(createdForexToday);
+                            // return Result<ForexRate>.Ok(createdForexToday);
+                            return new Result<ForexRate?>
+                            {
+                              Successful = true,
+                              Data = createdForexToday
+                            };
                         }
                     }
                     var currency = await _externalForexService.GetCurrencyRateAsync(date, baseCurrency);
@@ -82,14 +115,33 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
                             RateDate = DateTimeOffset.FromUnixTimeSeconds(currency.Timestamp).UtcDateTime.Date
                         });
 
-                        return Result<ForexRate>.Ok(createdForex);
+                        // return Result<ForexRate>.Ok(createdForex);
+                        return new Result<ForexRate?>
+                        {
+                            Successful = true,
+                            Data = createdForex
+                        };
                     }
                 }
 
-                return Result<ForexRate>.Ok(internalForexRate);
+                // return Result<ForexRate>.Ok(internalForexRate);
+                return new Result<ForexRate?>
+                {
+                    Successful = true,
+                    Data = internalForexRate
+                };
             } catch(Exception ex)
             {
-                return Result<ForexRate>.Fail(ex.Message);
+                // return Result<ForexRate>.Fail(ex.Message);
+                return new Result<ForexRate?>
+                {
+                    Successful = false,
+                    Error = new Error
+                    {
+                        Code = "FOREX-455",
+                        Message = ex.Message
+                    }
+                };
             }
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using ETR.Nine.Core.Web;
 using ETR.Nine.Services.Forex.Application.Models;
 using ETR.Nine.Services.Forex.Infrastructure.Exceptions;
 using ETR.Nine.Services.Forex.Infrastructure.Services;
@@ -8,7 +9,7 @@ namespace ETR.Nine.Services.Forex.API.Endpoints.Forex;
 
 public class GetForexByDateEndpoint : IEndpoint
 {
-    public void MapEndPoint(IEndpointRouteBuilder app)
+    public void Map(IEndpointRouteBuilder app)
     {
         app.MapGet("/internal/forex/{date}", async (string date, string? c, IForexService forexService) =>
         {
@@ -16,8 +17,7 @@ public class GetForexByDateEndpoint : IEndpoint
             if(!isValidDate) return Results.BadRequest("Invalid date format. Use DDMMYYYY.");
 
             var result = await forexService.GetForexByDate(parsedDate, c);
-            if(!result.Success) throw new ForexApiException("FOREX-455", result.Error ?? "API ERROR");
-            var response = new SuccessResponse(c, "PHP", result.Value.Rate);
+            var response = new SuccessResponse(c, "PHP", result.Data.Rate);
             return Results.Ok(response);
         });
     }

@@ -1,7 +1,8 @@
 using System;
-using ETR.Nine.Services.Forex.Domain;
-using MediatR;
+using ETR.Nine.Mediator;
 
 namespace ETR.Nine.Services.Forex.Application.Forex.Queries.GetAllForex;
 
-public class GetAllForexQuery : IRequest<Result<List<ForexListModel>>>{}
+public class GetAllForexQuery : IRequest<List<ForexListModel>>
+{
+}
