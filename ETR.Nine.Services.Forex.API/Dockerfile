@@ -7,8 +7,8 @@ RUN apt-get update && apt-get install -y curl unzip && \
     curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
     unzip awscliv2.zip && ./aws/install
 
-# Copy solution and project files
-COPY ETR.Nine.Services.Forex.sln ./
+# Copy solution and project files (paths relative to build context)
+COPY ../ETR.Nine.Services.Forex.sln ./
 COPY ETR.Nine.Services.Forex.Domain/*.csproj ./ETR.Nine.Services.Forex.Domain/
 COPY ETR.Nine.Services.Forex.Application/*.csproj ./ETR.Nine.Services.Forex.Application/
 COPY ETR.Nine.Services.Forex.Infrastructure/*.csproj ./ETR.Nine.Services.Forex.Infrastructure/
@@ -23,13 +23,13 @@ ENV AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
 ENV AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
 ENV AWS_DEFAULT_REGION=$AWS_REGION
 
-RUN aws codeartifact login --tool dotnet --domain etrphils --repository etr-nine --region ap-southeast-1
+RUN aws codeartifact login --tool dotnet --domain etrphils --repository etr-nine --region $AWS_REGION
 
 # Restore dependencies
 RUN dotnet restore
 
 # Copy all source code
-COPY . .
+COPY ../ ./
 
 # Build and publish the API
 WORKDIR /src/ETR.Nine.Services.Forex.API
@@ -42,7 +42,7 @@ WORKDIR /app
 # Create folder for SQLite DB
 RUN mkdir -p /app/data
 
-# Copy the database into the image
+# Copy the database into the image (from API folder)
 COPY ETR.Nine.Services.Forex.API/ETRForex.db /app/data/ETRForex.db
 
 # Copy published app from build stage
