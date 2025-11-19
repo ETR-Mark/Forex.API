@@ -9,14 +9,9 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Persistence
     {
         public ForexDbContext CreateDbContext(string[] args)
         {
-            var basePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "ETR.Nine.Services.Forex.API");
-            IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(Path.Combine(basePath))
-                .AddJsonFile("appsettings.Development.json")
-                .Build();
-
             var builder = new DbContextOptionsBuilder<ForexDbContext>();
-            var connectionString = configuration.GetConnectionString("SQLiteConnection");
+            var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__SQLiteConnection")
+                       ?? "Data Source=ETRForex.db";
             builder.UseSqlite(connectionString);
 
             return new ForexDbContext(builder.Options);

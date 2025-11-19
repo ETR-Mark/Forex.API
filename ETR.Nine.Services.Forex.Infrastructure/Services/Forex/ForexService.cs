@@ -8,9 +8,7 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
 {
     public interface IForexService
     {
-        Task<Result<List<ForexRate>>> GetAllForex();
         Task<Result<ForexRate?>> GetForexByDate(DateTime date, string baseCurrency);
-        Task<Result<ForexRate>> CreateForexRate(ForexRate forexRate);
     }
     
     public class ForexService : IForexService
@@ -21,55 +19,6 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
         {
             _forexRepository = forexRepository;
             _externalForexService = externalForexService;
-        }
-
-        public async Task<Result<ForexRate>> CreateForexRate(ForexRate forexRate)
-        {
-            try
-            {
-                var newForexRate = await _forexRepository.Create(forexRate);
-                return new Result<ForexRate>
-                {
-                    Successful = true,
-                    Data = newForexRate
-                };
-            } catch (Exception ex)
-            {
-                return new Result<ForexRate>
-                {
-                    Successful = false,
-                    Error = new Error
-                    {
-                        Code = "FOREX-455",
-                        Message = ex.Message
-                    },
-                };
-            }
-        }
-
-        public async Task<Result<List<ForexRate>>> GetAllForex()
-        {
-            try
-            {
-                var forexRates = await _forexRepository.GetAll();
-                return new Result<List<ForexRate>>
-                {
-                    Successful = true,
-                    Data = forexRates
-                };
-            }
-            catch (Exception ex)
-            {
-                return new Result<List<ForexRate>>
-                {
-                    Successful = false,
-                    Error = new Error
-                    {
-                        Code = "FOREX-455",
-                        Message = ex.Message
-                    },
-                };
-            }
         }
 
         public async Task<Result<ForexRate?>> GetForexByDate(DateTime date, string baseCurrency)
