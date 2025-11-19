@@ -20,6 +20,20 @@ public class ExternalForexRepository : IExternalForexRepository
     public ExternalForexRepository(IOptions<ExternalForexAPISettings> settings)
     {
         _settings = settings.Value;
+
+        if (string.IsNullOrEmpty(_settings.ApiKey))
+        {
+            var envKey = Environment.GetEnvironmentVariable("FOREXAPI__APIKEY");
+            if (!string.IsNullOrEmpty(envKey))
+            {
+                _settings.ApiKey = envKey;
+                Console.WriteLine($"Using FOREXAPI__APIKEY from environment: {envKey}");
+            }
+            else
+            {
+                Console.WriteLine("WARNING: FOREXAPI__APIKEY not set!");
+            }
+        }
     }
 
     private RestClient Client => new RestClient($"{_settings.BaseUrl}", configureSerialization: serialization =>
@@ -65,7 +79,7 @@ public class ExternalForexRepository : IExternalForexRepository
 
         if (response.Data.Success == false)
         {
-            throw new ForexApiException($"FOREX-455", response.Data.Error.Message ?? "External Forex Api Error");
+            throw new ForexApiException($"FOREX-455", response.Data.Error?.Message ?? "External Forex Api Error");
         }
 
         return response.Data;

@@ -49,6 +49,10 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
                               Data = createdForexToday
                             };
                         }
+                        else
+                        {
+                            throw new ForexApiException("FOREX-455", $"Rate for PHP was not found for the specified date.");
+                        }
                     }
                     var currency = await _externalForexService.GetCurrencyRateAsync(date, baseCurrency);
 
@@ -66,6 +70,10 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
                             Successful = true,
                             Data = createdForex
                         };
+                    }
+                    else
+                    {
+                        throw new ForexApiException("FOREX-455", $"Rate for PHP was not found for the specified date.");
                     }
                 }
 
