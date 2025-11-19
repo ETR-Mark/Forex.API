@@ -5,7 +5,13 @@ using ETR.Nine.Services.Forex.Infrastructure.Repositories;
 
 namespace ETR.Nine.Services.Forex.Application.Forex.Queries.GetAllForex;
 
-public class GetAllForexHandler : IRequestHandler<GetAllForexQuery, List<ForexListModel>>
+public interface IGetAllForexHandler
+{
+    Task<Result<List<ForexListModel>>> Handle(GetAllForexQuery request, CancellationToken cancellationToken = default);
+}
+
+
+public class GetAllForexHandler : IGetAllForexHandler
 {
     private readonly IForexRepository _forexRepository;
 
@@ -19,12 +25,18 @@ public class GetAllForexHandler : IRequestHandler<GetAllForexQuery, List<ForexLi
         try
         {
             var forexRates = await _forexRepository.GetAll();
-            var forexList = forexRates.Select(f => new ForexListModel
+            var pagedForexRates = forexRates
+                .OrderBy(forex => forex.RateDate)
+                .Skip((request.PageIndex - 1) * request.ItemsPerPage)
+                .Take(request.ItemsPerPage)
+                .ToList();
+            
+            var forexList = pagedForexRates.Select(forex => new ForexListModel
             {
-                BaseCurrency = f.BaseCurrency,
-                Rate = f.Rate,
-                RateDate = f.RateDate,
-                DateCreated = f.DateCreated
+                BaseCurrency = forex.BaseCurrency,
+                Rate = forex.Rate,
+                RateDate = forex.RateDate,
+                DateCreated = forex.DateCreated
             }).ToList();
 
             return new Result<List<ForexListModel>>
@@ -32,9 +44,18 @@ public class GetAllForexHandler : IRequestHandler<GetAllForexQuery, List<ForexLi
                 Successful = true,
                 Data = forexList
             };
+
         } catch (ForexApiException fe)
         {
-            throw new ForexApiException("FOREX-455", fe.Message ?? "API ERROR");
+            return new Result<List<ForexListModel>>
+                {
+                    Successful = false,
+                    Error = new Error
+                    {
+                        Code = "FOREX-455",
+                        Message = fe.Message
+                    },
+                };
         }
     }
 }

@@ -1,4 +1,5 @@
 using ETR.Nine.Services.Forex.Domain;
+using ETR.Nine.Services.Forex.Infrastructure.Exceptions;
 using ETR.Nine.Services.Forex.Infrastructure.Persistence.Database;
 using ETR.Nine.Services.Forex.Infrastructure.Repositories;
 using ETR.Nine.Services.Forex.Infrastructure.Services.Forex;
@@ -27,7 +28,6 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
             try
             {
                 var newForexRate = await _forexRepository.Create(forexRate);
-                // return Result<ForexRate>.Ok(newForexRate);
                 return new Result<ForexRate>
                 {
                     Successful = true,
@@ -35,7 +35,6 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
                 };
             } catch (Exception ex)
             {
-                // return Result<ForexRate>.Fail(ex.Message);
                 return new Result<ForexRate>
                 {
                     Successful = false,
@@ -53,7 +52,6 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
             try
             {
                 var forexRates = await _forexRepository.GetAll();
-                // return Result<List<ForexRate>>.Ok(forexRates);
                 return new Result<List<ForexRate>>
                 {
                     Successful = true,
@@ -62,7 +60,6 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                // return Result<List<ForexRate>>.Fail(ex.Message);
                 return new Result<List<ForexRate>>
                 {
                     Successful = false,
@@ -83,6 +80,7 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
                 if(internalForexRate == null)
                 {
                     DateTime utcNow = DateTime.UtcNow;
+                    if(date.Date > utcNow.Date) throw new ForexApiException("FOREX-455", "Invalid Date!");
                     if(date.Date == utcNow.Date)
                     {
                         var currencyToday = await _externalForexService.GetCurrencyRateTodayAsync(baseCurrency);
@@ -96,7 +94,6 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
                                 RateDate = utcNow.Date
                             });
 
-                            // return Result<ForexRate>.Ok(createdForexToday);
                             return new Result<ForexRate?>
                             {
                               Successful = true,
@@ -115,7 +112,6 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
                             RateDate = DateTimeOffset.FromUnixTimeSeconds(currency.Timestamp).UtcDateTime.Date
                         });
 
-                        // return Result<ForexRate>.Ok(createdForex);
                         return new Result<ForexRate?>
                         {
                             Successful = true,
@@ -124,15 +120,17 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
                     }
                 }
 
-                // return Result<ForexRate>.Ok(internalForexRate);
                 return new Result<ForexRate?>
                 {
                     Successful = true,
                     Data = internalForexRate
                 };
-            } catch(Exception ex)
+            } catch(ForexApiException fe)
             {
-                // return Result<ForexRate>.Fail(ex.Message);
+                throw;
+            }
+            catch(Exception ex)
+            {
                 return new Result<ForexRate?>
                 {
                     Successful = false,

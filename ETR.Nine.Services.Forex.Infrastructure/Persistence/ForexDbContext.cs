@@ -14,7 +14,6 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Persistence
             base.OnModelCreating(modelBuilder);
         }
 
-
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             return base.SaveChangesAsync(cancellationToken);
