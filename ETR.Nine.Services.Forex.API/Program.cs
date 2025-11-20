@@ -1,5 +1,6 @@
 using ETR.Nine.Mediator;
 using ETR.Nine.Services.Forex.API.Endpoints.Forex;
+using ETR.Nine.Services.Forex.API.Middlewares;
 using ETR.Nine.Services.Forex.Application;
 using ETR.Nine.Services.Forex.Application.Forex.Queries.GetAllForex;
 using ETR.Nine.Services.Forex.Infrastructure;
@@ -17,6 +18,8 @@ builder.Services.AddMediator(
 );
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 using var scope = app.Services.CreateScope();
 var db = scope.ServiceProvider.GetRequiredService<ForexDbContext>();
