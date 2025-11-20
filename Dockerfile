@@ -50,6 +50,8 @@ COPY --from=build /app/publish ./
 
 # Set the connection string to point to the copied DB
 ENV ConnectionStrings__SQLiteConnection="Data Source=/app/data/ETRForex.db"
+ENV ForexApi__BaseUrl=""
+ENV ForexApi__ApiKey=""
 
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "ETR.Nine.Services.Forex.API.dll"]
