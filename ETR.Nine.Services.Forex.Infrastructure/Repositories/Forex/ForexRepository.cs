@@ -6,9 +6,9 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Repositories
 {
     public interface IForexRepository
     {
-        Task<List<ForexRate>> GetAll();
-        Task<ForexRate?> GetByDate(string baseCurrency, DateTime dateTime);
-        Task<ForexRate> Create(ForexRate forexRate);
+        Task<Result<List<ForexRate>>> GetAll();
+        Task<Result<ForexRate>?> GetByDate(string baseCurrency, DateTime dateTime);
+        Task<Result<ForexRate>> Create(ForexRate forexRate);
     }
     
     public class ForexRepository : IForexRepository
@@ -19,23 +19,67 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<ForexRate> Create(ForexRate forexRate)
+        public async Task<Result<ForexRate>> Create(ForexRate forexRate)
         {
-            _dbContext.ForexRates.Add(forexRate);
-            await _dbContext.SaveChangesAsync();
-            return forexRate;
+            try
+            {
+                _dbContext.ForexRates.Add(forexRate);
+                await _dbContext.SaveChangesAsync();
+                return new Result<ForexRate>
+                {
+                  Successful = true,
+                  Data = forexRate  
+                };
+            } catch (Exception ex)
+            {
+                return new Result<ForexRate>
+                {
+                  Successful = false,
+                  Error = Error.Exception(ex)  
+                };
+            }
         }
 
-        public async Task<List<ForexRate>> GetAll()
+        public async Task<Result<List<ForexRate>>> GetAll()
         {
-            return await _dbContext.ForexRates.ToListAsync();
+            try
+            {
+                var forexRates = await _dbContext.ForexRates.ToListAsync();
+                return new Result<List<ForexRate>>
+                {
+                  Successful = true,
+                  Data = forexRates  
+                };
+            } catch (Exception ex)
+            {
+                return new Result<List<ForexRate>>
+                {
+                  Successful = false,
+                  Error = Error.Exception(ex)  
+                };
+            }
         }
 
-        public async Task<ForexRate?> GetByDate(string baseCurrency, DateTime dateTime)
+        public async Task<Result<ForexRate>?> GetByDate(string baseCurrency, DateTime dateTime)
         {
-            return await _dbContext.ForexRates
+            try
+            {
+                var forexRate = await _dbContext.ForexRates
                                         .Where(f => f.BaseCurrency == baseCurrency && f.RateDate == dateTime)
                                         .FirstOrDefaultAsync();
+                return new Result<ForexRate>
+                {
+                  Successful = true,
+                  Data = forexRate 
+                };
+            } catch(Exception ex)
+            {
+                return new Result<ForexRate>
+                {
+                  Successful = false,
+                  Error = Error.Exception(ex)
+                };
+            }
         }
     }
 }

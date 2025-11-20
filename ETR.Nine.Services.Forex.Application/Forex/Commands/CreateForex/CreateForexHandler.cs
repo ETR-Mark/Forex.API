@@ -1,7 +1,6 @@
 using System;
 using ETR.Nine.Mediator;
 using ETR.Nine.Services.Forex.Domain;
-using ETR.Nine.Services.Forex.Infrastructure.Exceptions;
 using ETR.Nine.Services.Forex.Infrastructure.Persistence.Database;
 using ETR.Nine.Services.Forex.Infrastructure.Repositories;
 
@@ -30,11 +29,15 @@ public class CreateForexHandler : IRequestHandler<CreateForexCommand, ForexRate>
             return new Result<ForexRate>
             {
                 Successful = true,
-                Data = createdForex
+                Data = createdForex.Data
             };
-        } catch(ForexApiException fe)
+        } catch(Exception ex)
         {
-            throw new ForexApiException("FOREX-455", fe.Message ?? "CREATE FOREX COMMAND ERROR");
+            return new Result<ForexRate>
+            {
+                Successful = false,
+                Error = Error.Exception(ex)
+            };
         }
     }
 }

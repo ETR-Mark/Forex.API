@@ -1,6 +1,5 @@
 using System;
 using ETR.Nine.Mediator;
-using ETR.Nine.Services.Forex.Infrastructure.Exceptions;
 using ETR.Nine.Services.Forex.Infrastructure.Repositories;
 
 namespace ETR.Nine.Services.Forex.Application.Forex.Queries.GetAllForex;
@@ -25,13 +24,14 @@ public class GetAllForexHandler : IGetAllForexHandler
         try
         {
             var forexRates = await _forexRepository.GetAll();
-            var pagedForexRates = forexRates
+
+            var pagedForexRates = forexRates?.Data
                 .OrderBy(forex => forex.RateDate)
                 .Skip((request.PageIndex - 1) * request.ItemsPerPage)
                 .Take(request.ItemsPerPage)
                 .ToList();
             
-            var forexList = pagedForexRates.Select(forex => new ForexListModel
+            var forexList = pagedForexRates?.Select(forex => new ForexListModel
             {
                 BaseCurrency = forex.BaseCurrency,
                 Rate = forex.Rate,
@@ -45,16 +45,12 @@ public class GetAllForexHandler : IGetAllForexHandler
                 Data = forexList
             };
 
-        } catch (ForexApiException fe)
+        } catch (Exception ex)
         {
             return new Result<List<ForexListModel>>
                 {
                     Successful = false,
-                    Error = new Error
-                    {
-                        Code = "FOREX-455",
-                        Message = fe.Message
-                    },
+                    Error = Error.Exception(ex)
                 };
         }
     }

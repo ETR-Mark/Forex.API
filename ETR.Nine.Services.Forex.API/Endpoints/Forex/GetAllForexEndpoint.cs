@@ -18,7 +18,7 @@ public class GetAllForexEndpoint : IEndpoint
             };
 
             var result = await handler.Handle(query);
-            return result.Successful ? Results.Ok(result) : Results.BadRequest(result);
+            return result.Successful ? Results.Ok(result.Data) : Results.BadRequest(result.Error);
         });
     }
 }

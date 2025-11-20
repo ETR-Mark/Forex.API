@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="ETR.Nine" Version="2025.11.19.1321" />
+  </ItemGroup>
+
 </Project>

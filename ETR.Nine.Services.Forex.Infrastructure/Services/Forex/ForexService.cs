@@ -1,5 +1,4 @@
 using ETR.Nine.Services.Forex.Domain;
-using ETR.Nine.Services.Forex.Infrastructure.Exceptions;
 using ETR.Nine.Services.Forex.Infrastructure.Persistence.Database;
 using ETR.Nine.Services.Forex.Infrastructure.Repositories;
 using ETR.Nine.Services.Forex.Infrastructure.Services.Forex;
@@ -8,7 +7,7 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
 {
     public interface IForexService
     {
-        Task<Result<ForexRate?>> GetForexByDate(DateTime date, string baseCurrency);
+        Task<Result<ForexRate>> GetForexByDate(DateTime date, string baseCurrency);
     }
     
     public class ForexService : IForexService
@@ -21,81 +20,95 @@ namespace ETR.Nine.Services.Forex.Infrastructure.Services
             _externalForexService = externalForexService;
         }
 
-        public async Task<Result<ForexRate?>> GetForexByDate(DateTime date, string baseCurrency)
+        public async Task<Result<ForexRate>> GetForexByDate(DateTime date, string baseCurrency)
         {
             try
             {
+                DateTime utcNow = DateTime.UtcNow;
                 var internalForexRate = await _forexRepository.GetByDate(baseCurrency, date);
-                if(internalForexRate == null)
+                if(internalForexRate?.Data != null)
                 {
-                    DateTime utcNow = DateTime.UtcNow;
-                    if(date.Date > utcNow.Date) throw new ForexApiException("FOREX-455", "Invalid Date!");
-                    if(date.Date == utcNow.Date)
+                    return new Result<ForexRate>
                     {
-                        var currencyToday = await _externalForexService.GetCurrencyRateTodayAsync(baseCurrency);
+                        Successful = true,
+                        Data = internalForexRate.Data
+                    };
+                }
 
-                        if (currencyToday.Rates.ContainsKey("PHP"))
+                if(date.Date > utcNow.Date){ 
+                    return new Result<ForexRate?>{ Successful = false, Error = Error.Validation("FOREX-455", "Invalid Date") };
+                }
+
+                if(date.Date == utcNow.Date)
+                {
+                    var currencyToday = await _externalForexService.GetCurrencyRateTodayAsync(baseCurrency);
+                    var errorMsg = currencyToday.Error?.Message ?? "Unknown external API error";
+                    if (!currencyToday.Successful || currencyToday.Data == null)
+                        return new Result<ForexRate>
                         {
-                            var createdForexToday = await _forexRepository.Create(new ForexRate
-                            {
-                                BaseCurrency = baseCurrency,
-                                Rate = currencyToday.Rates["PHP"], 
-                                RateDate = utcNow.Date
-                            });
+                            Successful = false,
+                            Error = Error.Problem("FOREX-455", errorMsg)
+                        };
 
-                            return new Result<ForexRate?>
-                            {
-                              Successful = true,
-                              Data = createdForexToday
-                            };
-                        }
-                        else
-                        {
-                            throw new ForexApiException("FOREX-455", $"Rate for PHP was not found for the specified date.");
-                        }
-                    }
-                    var currency = await _externalForexService.GetCurrencyRateAsync(date, baseCurrency);
 
-                    if (currency.Rates.ContainsKey("PHP"))
+                    if (currencyToday.Data.Rates.ContainsKey("PHP"))
                     {
-                        var createdForex = await _forexRepository.Create(new ForexRate
+                        var createdForexToday = await _forexRepository.Create(new ForexRate
                         {
                             BaseCurrency = baseCurrency,
-                            Rate = currency.Rates["PHP"],
-                            RateDate = DateTimeOffset.FromUnixTimeSeconds(currency.Timestamp).UtcDateTime.Date
+                            Rate = currencyToday.Data.Rates["PHP"], 
+                            RateDate = utcNow.Date
                         });
 
-                        return new Result<ForexRate?>
+                        return new Result<ForexRate>
                         {
                             Successful = true,
-                            Data = createdForex
+                            Data = createdForexToday.Data
                         };
                     }
                     else
                     {
-                        throw new ForexApiException("FOREX-455", $"Rate for PHP was not found for the specified date.");
+                        return new Result<ForexRate>
+                        {
+                            Successful = false,
+                            Error = Error.NotFound("FOREX-455", "External API Error")
+                        };
                     }
                 }
+                var currency = await _externalForexService.GetCurrencyRateAsync(date, baseCurrency);
+                if (!currency.Successful || currency.Data == null) return new Result<ForexRate>{ Successful = false, Data = null, Error = Error.Problem("FOREX-455", currency.Error.Message) };
 
-                return new Result<ForexRate?>
+                if (currency.Data.Rates.ContainsKey("PHP"))
                 {
-                    Successful = true,
-                    Data = internalForexRate
-                };
-            } catch(ForexApiException fe)
-            {
-                throw;
-            }
+                    var createdForex = await _forexRepository.Create(new ForexRate
+                    {
+                        BaseCurrency = baseCurrency,
+                        Rate = currency.Data.Rates["PHP"],
+                        RateDate = DateTimeOffset.FromUnixTimeSeconds(currency.Data.Timestamp).UtcDateTime.Date
+                    });
+
+                    return new Result<ForexRate>
+                    {
+                        Successful = true,
+                        Data = createdForex.Data
+                    };
+                }
+                else
+                {
+                    return new Result<ForexRate>
+                    {
+                        Successful = false,
+                        Error = Error.NotFound("FOREX-455", "External API Error")
+                    };
+                }
+                
+            } 
             catch(Exception ex)
             {
-                return new Result<ForexRate?>
+                return new Result<ForexRate>
                 {
                     Successful = false,
-                    Error = new Error
-                    {
-                        Code = "FOREX-455",
-                        Message = ex.Message
-                    }
+                    Error = Error.Exception(ex)
                 };
             }
         }

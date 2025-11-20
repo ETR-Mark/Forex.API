@@ -1,6 +1,5 @@
 using ETR.Nine.Mediator;
 using ETR.Nine.Services.Forex.API.Endpoints.Forex;
-using ETR.Nine.Services.Forex.API.Middlewares;
 using ETR.Nine.Services.Forex.Application;
 using ETR.Nine.Services.Forex.Application.Forex.Queries.GetAllForex;
 using ETR.Nine.Services.Forex.Infrastructure;
@@ -9,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddHttpClient();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication(builder.Configuration);
@@ -23,8 +21,6 @@ var app = builder.Build();
 using var scope = app.Services.CreateScope();
 var db = scope.ServiceProvider.GetRequiredService<ForexDbContext>();
 db.Database.EnsureCreated();
-
-app.UseMiddleware<ForexApiExceptionMiddleware>();
 
 new GetAllForexEndpoint().Map(app);
 new GetForexByDateEndpoint().Map(app);

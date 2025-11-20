@@ -1,7 +1,6 @@
 using System;
 using System.Text.Json;
 using ETR.Nine.Services.Forex.Domain.Models;
-using ETR.Nine.Services.Forex.Infrastructure.Exceptions;
 using ETR.Nine.Services.Forex.Infrastructure.Settings;
 using Microsoft.Extensions.Options;
 using RestSharp;
@@ -10,39 +9,25 @@ using RestSharp.Serializers.Json;
 namespace ETR.Nine.Services.Forex.Infrastructure.Repositories.Forex;
 public interface IExternalForexRepository
 {
-    Task<ExternalForexResponseModel> GetCurrencyRateAsync(DateTime targetDate, string baseCurrency, string targetCurrency);
-    Task<ExternalForexResponseModel> GetCurrencyRateTodayAsync(string baseCurrency, string targetCurrency);
+    Task<Result<ExternalForexResponseModel>> GetCurrencyRateAsync(DateTime targetDate, string baseCurrency, string targetCurrency);
+    Task<Result<ExternalForexResponseModel>> GetCurrencyRateTodayAsync(string baseCurrency, string targetCurrency);
 }
 
 public class ExternalForexRepository : IExternalForexRepository
 {
     private readonly ExternalForexAPISettings _settings;
+    private readonly RestClient _client;
     public ExternalForexRepository(IOptions<ExternalForexAPISettings> settings)
     {
         _settings = settings.Value;
-
-        if (string.IsNullOrEmpty(_settings.ApiKey))
+        _client = new RestClient(_settings.BaseUrl, configureSerialization: s =>
         {
-            var envKey = Environment.GetEnvironmentVariable("FOREXAPI__APIKEY");
-            if (!string.IsNullOrEmpty(envKey))
+            s.UseSystemTextJson(new JsonSerializerOptions
             {
-                _settings.ApiKey = envKey;
-                Console.WriteLine($"Using FOREXAPI__APIKEY from environment: {envKey}");
-            }
-            else
-            {
-                Console.WriteLine("WARNING: FOREXAPI__APIKEY not set!");
-            }
-        }
-    }
-
-    private RestClient Client => new RestClient($"{_settings.BaseUrl}", configureSerialization: serialization =>
-    {
-        serialization.UseSystemTextJson(new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
+                PropertyNameCaseInsensitive = true
+            });
         });
-    });
+    }
 
     private RestRequest CreateRequest(string path, string baseCurrency, string targetCurrency)
     {
@@ -53,35 +38,113 @@ public class ExternalForexRepository : IExternalForexRepository
         return request;
     }
 
-    public async Task<ExternalForexResponseModel> GetCurrencyRateAsync(DateTime targetDate,string baseCurrency, string targetCurrency)
+    public async Task<Result<ExternalForexResponseModel>> GetCurrencyRateAsync(DateTime targetDate,string baseCurrency, string targetCurrency)
     {
-        var request = CreateRequest($"/{targetDate:yyyy-MM-dd}", baseCurrency, targetCurrency);
-        
-        var response = await Client.ExecuteAsync<ExternalForexResponseModel>(request);
-
-        if(response.Data == null) throw new ForexApiException("FOREX-455", "Failed to deserialize");
-
-        if (response.Data.Success == false)
+        try
         {
-            throw new ForexApiException($"FOREX-455", response.Data.Error?.Message ?? "External Forex Api Error");
+            var request = CreateRequest($"/{targetDate:yyyy-MM-dd}", baseCurrency, targetCurrency);
+        
+            var response = await _client.ExecuteAsync<ExternalForexResponseModel>(request);
+
+            if (!response.IsSuccessful)
+            {
+                var msg = response.ErrorMessage 
+                          ?? response.ErrorException?.Message 
+                          ?? "Unknown error";
+
+                return new Result<ExternalForexResponseModel>
+                {
+                    Successful = false,
+                    Error = Error.Problem("FOREX-455", msg)
+                };
+            }
+
+            if (response.Data == null)
+            {
+                return new Result<ExternalForexResponseModel>
+                {
+                    Successful = false,
+                    Error = Error.Problem("FOREX-455", "Invalid Or No Response from API Request")
+                };
+            }
+
+            if (!response.Data.Success && response.Data.Error != null)
+                {
+                    return new Result<ExternalForexResponseModel>
+                    {
+                        Successful = false,
+                        Error = Error.Problem("FOREX-455", response.Data.Error.Message)
+                    };
+                }
+
+            return new Result<ExternalForexResponseModel>
+            {
+                Successful = true,
+                Data = response.Data
+            };
+
+        }catch (Exception ex)
+        {
+            return new Result<ExternalForexResponseModel>
+            {
+              Successful = false,
+              Error = Error.Exception(ex)  
+            };
         }
-       
-        return response.Data;
     }
 
-    public async Task<ExternalForexResponseModel> GetCurrencyRateTodayAsync(string baseCurrency, string targetCurrency)
+    public async Task<Result<ExternalForexResponseModel>> GetCurrencyRateTodayAsync(string baseCurrency, string targetCurrency)
     {
-        var request = CreateRequest("/latest", baseCurrency, targetCurrency);
-
-        var response = await Client.ExecuteAsync<ExternalForexResponseModel>(request);
-
-        if(response.Data == null) throw new ForexApiException($"FOREX-455", "Failed to deserialize");
-
-        if (response.Data.Success == false)
+        try
         {
-            throw new ForexApiException($"FOREX-455", response.Data.Error?.Message ?? "External Forex Api Error");
-        }
+            var request = CreateRequest("/latest", baseCurrency, targetCurrency);
 
-        return response.Data;
+            var response = await _client.ExecuteAsync<ExternalForexResponseModel>(request);
+
+            if (!response.IsSuccessful)
+            {
+                var msg = response.ErrorMessage 
+                          ?? response.ErrorException?.Message 
+                          ?? "Unknown error";
+
+                return new Result<ExternalForexResponseModel>
+                {
+                    Successful = false,
+                    Error = Error.Problem("FOREX-455", msg)
+                };
+            }
+            
+
+            if (response.Data == null)
+            {
+                return new Result<ExternalForexResponseModel>
+                {
+                    Successful = false,
+                    Error = Error.Problem("FOREX-455", "Invalid Or No Response from API Request")
+                };
+            }
+
+            if (!response.Data.Success && response.Data.Error != null)
+                {
+                    return new Result<ExternalForexResponseModel>
+                    {
+                        Successful = false,
+                        Error = Error.Problem("FOREX-455", response.Data.Error.Message)
+                    };
+                }
+
+            return new Result<ExternalForexResponseModel>
+            {
+                Successful = true,
+                Data = response.Data
+            };
+        }catch (Exception ex)
+        {
+            return new Result<ExternalForexResponseModel>
+            {
+              Successful = false,
+              Error = Error.Exception(ex)  
+            };
+        }
     }
 }
